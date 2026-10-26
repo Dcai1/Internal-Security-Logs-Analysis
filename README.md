@@ -21,13 +21,15 @@ For your curiosity, the logs I used are available for viewing and download on th
 | Authentication Events | Logged time of authentication, successful and failed logins, and Country login locations. |
 
 No other logs were provided. With how large this investigation ended up turning out, it's safe to say this was not enough logs to fully complete the investigation and confirm the exfiltration. <br />
-**But, strength in traffic analysis is in knowing how much data you have to work with, and knowing where your limits are based on the provided information you have!**
+**But, I believe that true strength in traffic analysis, is in knowing how much data you have to work with, and knowing where your limits are based on the provided information you have!**
 
 <br /> <br />
 
 Now, let's get into the analysis!
 
 # My Investigative Approach
+
+<hr />
 
 My investigation followed a very hypothesis-driven approach. Rather than instantly treating every unusual event as malicious, each lead was evaluated using the following sequence I created:
 
@@ -45,27 +47,39 @@ My investigation followed a very hypothesis-driven approach. Rather than instant
 
 This **approach** helped structure my observations and starting leads, and prevented individual anomalies from being concluded as a definitive proof of compromise.
 
+<hr />
+<br />
+
 ## Observe
 
 The first step was to understand what normal activity looked like within this supplied data.
 
-Authentication records showed that accounts normally authenticated from Canadian IP addresses, including sources in the `99.240–250.*` range. This provided a useful comparison when examining successful logins from unfamiliar geographic locations.
+The authentication records showed that accounts normally authenticated from Canadian IP addresses, including sources in the `99.240–250.*` IP range. This provided a useful comparison when examining successful logins from unfamiliar geographic locations.
 
 The asset inventory also documented an internal vulnerability scanner, `SEC-SCAN-01` (`10.20.30.50`), authorized to scan clinical workstations, kiosks, and servers on Mondays and Fridays between `22:00` and `00:00`, running every 3-4 days. 
 
 <br />
 
-These observations provided context for evaluating anomalies. However, previously observed IP ranges were only treated as a baseline of expected behavior. Geographic location by itself cannot determine whether a login was legitimate or not.
+I treated this simply as normal traffic observations. They give me a baseline for evaluating potential anomalous behavior, since geographic location by itself cannot determine whether a login was anomalous or not. 
+
+<br />
+<br />
+
+But while observing this, I found some suspicious login patterns:
+
+<br />
 
 ## Contextualize
 
 Two accounts warranted further examination.
 
+<hr />
+
 ### Account: `p.singh`
 
 The authentication events contained successful logins from the account's usual Canadian sources, as well as two successful logins from Belizean IP address `209.126.162.16` on **September 14** at `02:14:45` and `02:16:03`.
 
-The unfamiliar location and successful authentication made this activity suspicious. Because the account also historically had successful logins from its usual sources, the observations raised the possibility of concurrent legitimate use and/or unauthorized account use.
+The unfamiliar location and successful authentication made this activity suspicious. Because the account also historically had successful logins from its usual sources, these observations raised the possibility of unauthorized account use.
 
 <hr />
 
@@ -75,14 +89,20 @@ The authentication events showed successful authentication from Canadian sources
 
 <hr />
 
-### My Interpretation: 
+### My Interpretation Of This: 
 
-The observed change in geography locations should warrant an investigation, especially in the context of other suspicious activity in the environment. <br />
-But just by itself, it holds no indicator of account compromise or misuse.
+<hr />
 
-**Both accounts presented authentication anomalies consistent with possible credential misuse. But neither geographic inconsistency alone nor a successful login from an unfamiliar location can prove that an account had been compromised. This only tells us that the geographic location changed.** <br />
+The observed change in geography locations should warrant an investigation. But just by itself, it holds no indicator of account compromise or misuse. <br />
+Travelling, VPN routing, legitimate remote access, and other explanations would need to be considered too. 
 
-Travelling, VPN routing, legitimate remote access, and other explanations would need to be considered too.
+<hr />
+
+<br />
+
+But this is a great starting point. Let's dig in further by analyzing the other log file, the **firewall logs**.
+
+<br />
 
 ## Correlating This to Other Events
 
@@ -91,18 +111,26 @@ But wait, doesn't this align with the similar authentication timestamp as `p.sin
 
 <br />
 
-This combination was more informative than an isolated denied connection.
+### My Interpretation Of This: 
 
-The firewall records included denied attempts involving **RDP (3389), RPC (135), and SSH (22), alongside allowed SMB (445) connections**. The probing lasted from `2:32:33` to `3:05:29`, late at night.
+<hr />
 
-The pattern suggested an attempt to silently discover reachable internal services, followed by communication with a file server.
+This correlation was more informative than anything else here, and it lines up with the previous suspicious login timestamps.
+
+The firewall records included denied attempts involving sensitive ports like **RDP (3389), SSH (22), SMB (445) connections,** and more. The probing slowly lasted from `2:32:33` to `3:05:29`, late at night. They tried to be as stealthy as possible.
+
+The pattern suggested an attempt to silently discover reachable internal services, with **SMB** connections successful to a file server, followed by communication to that file server.
 
 The allowed **SMB connections** was to a server at `10.20.20.11`. <br />
 The asset inventory identified `10.20.20.11`, named `FS-CLIN-01`, as a **data-centre file server** hosting a clinical records share. This increased the potential significance of the **SMB** activity. <br /> <br />
 
-**Contradictory sources:** The relationship between `10.20.40.70` and either suspicious user account could not be established from the available records alone. Although the timing was suggestive, the investigation lacked access to **VPN session records**, which could map authenticated users to assigned internal addresses.
+**Contradictory sources:** The normal relationships between `10.20.40.70` and either suspicious user accounts could not be established from the available records alone. Although the timing was suggestive, the investigation lacked access to **VPN session records**, which could map authenticated users to assigned internal addresses. <br />
+In other words, we don't have an idea of what **normal behavior** looks like for this file server.
 
-Regardless, this was not normalized **expected** behavior, so the source should be treated as suspicious.
+Regardless, this was not normalized **expected** behavior, and since the timing **aligns** with the suspicious authentication from Belize, the source should definitely be treated as suspicious.
+
+<hr />
+<br />
 
 ### Continuing the Correlation
 
@@ -115,15 +143,19 @@ Across these records, the logged totals were:
 
 The allowed connections established that SMB communication was permitted between the source and the file server during the observed period. The destination's role made the activity important to investigate.
 
-However, this only tells us the amount of bytes exchanged and received. It doesn't tell us:
+### My Interpretation Of This: 
+
+<hr />
+
+This only tells us the amount of bytes exchanged and received. It doesn't tell us:
 
 1. **Which** files, if any, were opened,
-2. **Whether** authentication succeeded at the SMB application layer,
+2. **Whether** authentication succeeded at the SMB layer,
 3. **Or whether** the transfer involved sensitive data.
 
-<br />
+<hr />
 
-The precise meaning of the `sent` and `received` bytes must also be interpreted by the logging system's understanding, too.
+<br />
 
 So to validate the hypothesis, the next step would be to examine the file-server authentication records, SMB session logs, file-access auditing, and relevant endpoints involved. <br /> <br />
 
@@ -131,29 +163,84 @@ So to validate the hypothesis, the next step would be to examine the file-server
 
 But wait, there's more!
 
+<br />
+
 ## External Communications
+
+### Observation
 
 A subsequent lead was recurring outbound traffic from FS-CLIN-01 to external IP address 45.147.210.18 over TCP port 8443.
 
-The supplied records showed:
+The total supplied records showed:
 
-First observed: September 15 at 01:05:00.
+**First observed:** `September 15` at `01:05:00.`
 
-Last observed: September 20 at 23:59:56.167.
+**Last observed:** `September 20` at `23:59:56.167`.
 
-Total allowed connections: 2,145.
+**Total allowed connections:** `2,145`.
 
-Median interval between connections: Unpredictable, approximately 3-6 minutes between a certain number of connections, before multiple hours of inactivity.
+**Observed Interval between connections:** Unpredictable, approximately `180-360 seconds` between a certain number of connections, before multiple hours of inactivity, likely until the next midnight.
 
-Total logged bytes sent: 2,452,210.
+**Total logged bytes sent:** `2,452,210`.
 
-Total logged bytes received: 1,279,698.
+**Total logged bytes received:** `1,279,698`.
 
-In the context of the earlier suspicious activity, this became a reasonable hypothesis to investigate.
-The appropriate next step would be to identify the process responsible, validate the external destination against approved services, and compare the traffic with the server's normal behavior.
+### My Interpretation Of This: 
+
+<hr />
+
+In the correlation of the earlier suspicious activity, this became a reasonable hypothesis to document and start an investigation.
+The appropriate next step would be to dig deeper and identify the process responsible, validate the external destination against approved services, and compare the traffic with the server's normal behavior. 
+
+<br />
+
+**Again, we don't have the information required to do this.**
 
 The same file server also generated 35 allowed outbound TCP/443 connections to 45.148.204.78 between September 18 at `01:20:38` and September 20 at `02:56:49`.
 
 The records contained a total of 171,902,186 bytes sent, approximately 171.9 MB, and 189,405 bytes received.
 
 The outbound traffic remained worthy of investigation because it originated from a file server hosting a clinical records share and targeted an external address during a period that also contained suspicious authentication and network activity.
+
+<hr />
+
+## Assess
+
+### The Final Step
+
+We've analyzed the two provided log files given to us, the `authentication logs` and the `firewall logs`. We established a baseline for normal traffic and identified all the anomalous traffic located in the system. 
+
+<br />
+
+But as seen in the previous explanations, there isn't enough information provided for us to fully come to a conclusion of whether or not sensitive files were exfiltrated. <br /> <br />
+
+
+This is the best we could do with the provided information. But even **this** is a handful. Someone taking over this investigation will already have all the information they need.
+
+<br />
+
+With all the observations acquired from this analysis, these are the key findings:
+
+<hr />
+
+1. Normal authentication traffic expects a VPN session authentication under IP ranges `99.240-250.*` and in the CA country.
+2. 2 suspicious authenications from a different IP range, and different countries were observed
+3. Suspected probing from an IP address unlisted in the asset inventory was observed near midnight, shortly after a suspicious authentication succeeded
+4. The suspected probing scanned for multiple vulnerable ports on many assets listed in the asset inventory
+5. A vulnerable port (SMB) was found on a file server holding medical records, followed by suspected exploitation
+6. Communications from that file server begins outbound connections to an IP unlisted in the asset table, over the span of multiple days before beginning data exfiltration
+7. 191,902,186 Bytes were sent to that outbound IP connection between September 18-20. 189,405 Bytes were received.
+8. The logs end here.
+
+<hr />
+<br />
+
+## Conclusion
+
+From **analyzing**, **correlating**, **contradicting** events listed in the provided log files and utilizing a calm, non-biased **log analysis** mindset, a viable hypothesis of suspected data exfiltration was created. <br /> <br />
+
+While it's a shame that there was not enougn provided information to complete the investigation single-handedly and come to a conclusion, there was still enough information to locate suspicious activities and correlate them to other events with a combination of the other logs.
+
+<br />
+
+With our current findings now finalized, the next action would be **transforming this into documentation and threat intelligence**, leading to **actionable** insight.
