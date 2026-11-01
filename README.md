@@ -1,7 +1,3 @@
-# Internal-Security-Logs-Analysis
-Finding data exfiltration in 20 days of logs using network traffic investigation, threat detection, and evidence-based reporting
-<hr />
-
 # Summary
 
 This challenge involved investigating potentially malicious activity within a simulated enterprise environment using **authentication records**, **firewall logs**, and an **asset inventory**. The objective was to find, distinguish, and calculate the motives of the suspicious behavior **hidden** inside all these logs, **distinguishing** it from legitimate administrative or operational activity, **correlating** these events across available data sources, and documenting the hypothesis and conclusion in an actionable **technical + tactical threat intelligence report** without exaggerating the evidence.
