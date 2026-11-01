@@ -10,21 +10,19 @@ For your curiosity, the logs I used are available for viewing and download on th
 
 # Too Long, Didn't Read? No Problem!
 
-<hr />
-
 **Provided three files, analyze and determine whether a data breach occurred under all these pages of legitimate traffic.** <br /> <br />
 
 The files were analyzed and the data breach was located using **data analysis**, **SIEMs**, **precise correlation**, and an unwavering **analysis mindset**. <br /> <br />
 
-The mindset involved **contradicting the correlations** with anything that could make it seem more legitimate than suspicious, before considering it anomalous activity.
+The mindset involved **contradicting the correlations** with anything to make it feel legitimate, before considering it anomalous activity.
 
-There were indicators of compromise for a potential breach, but too much information was missing. There was not enough information from the three files to fully justify the activity being anomalous. <br />
+Indicators of Compromise were found, but most information was missing for concise investigations (VPN session logs, specific protocol logs, etc). Not enough information was provided to fully justify a data breach. <br />
 
-The missing files were documented along with the current findings in a tactical and technical intelligence report.
+So the missing files were mentioned, documented along with the current findings in a tactical and technical intelligence report.
 
 <hr />
 
-Curious and want a more in-depth explanation? Feel free to skim over the contents below.
+Curious and want a more in-depth explanation? Feel free to skim over the full explanation below.
 
 # Provided Data
 
