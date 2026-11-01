@@ -24,6 +24,8 @@ The missing files were documented along with the current findings in a tactical 
 
 <hr />
 
+Curious and want a more in-depth explanation? Feel free to skim over the contents below.
+
 # Provided Data
 
 <img width="986" height="532" alt="Visual Image of information provided for the analysis" src="https://github.com/user-attachments/assets/31c39cfb-024e-4295-b128-5b9580abe6fb" />
