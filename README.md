@@ -8,9 +8,25 @@ For your curiosity, the logs I used are available for viewing and download on th
 <hr />
 <br />
 
+# Too Long, Didn't Read? No Problem!
+
+<hr />
+
+**Provided three files, analyze and determine whether a data breach occurred under all these pages of legitimate traffic.** <br /> <br />
+
+The files were analyzed and the data breach was located using **data analysis**, **SIEMs**, **precise correlation**, and an unwavering **analysis mindset**. <br /> <br />
+
+The mindset involved **contradicting the correlations** with anything that could make it seem more legitimate than suspicious, before considering it anomalous activity.
+
+There were indicators of compromise for a potential breach, but too much information was missing. There was not enough information from the three files to fully justify the activity being anomalous. <br />
+
+The missing files were documented along with the current findings in a tactical and technical intelligence report.
+
+<hr />
+
 # Provided Data
 
-<img width="986" height="532" alt="Visual Image of information provided for the investigation" src="https://github.com/user-attachments/assets/31c39cfb-024e-4295-b128-5b9580abe6fb" />
+<img width="986" height="532" alt="Visual Image of information provided for the analysis" src="https://github.com/user-attachments/assets/31c39cfb-024e-4295-b128-5b9580abe6fb" />
 
 
 <br /> <br />
