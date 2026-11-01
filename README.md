@@ -24,8 +24,13 @@ For your curiosity, the logs I used are available for viewing and download on th
 No other logs were provided. With how large this investigation ended up turning out, it's safe to say this was not enough logs to fully complete the investigation and confirm the exfiltration. <br />
 **But, I believe that true strength in traffic analysis, is in knowing how much data you have to work with, and knowing where your limits are based on the provided information you have!**
 
-<br /> <br />
+<br />
 
+<img width="958" height="530" alt="Visual Flow Chart of the intended analysis workflow" src="https://github.com/user-attachments/assets/9e4abc38-870d-4281-8d14-36797d5444ec" />
+
+
+<br />
+ 
 Now, let's get into the analysis!
 
 # My Investigative Approach
