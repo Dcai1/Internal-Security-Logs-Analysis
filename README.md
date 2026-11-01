@@ -10,6 +10,10 @@ For your curiosity, the logs I used are available for viewing and download on th
 
 # Provided Data
 
+<img width="983" height="528" alt="msedge_GlKoqxCLjm" src="https://github.com/user-attachments/assets/36a19998-d09b-4454-847e-cb9a85854b09" />
+
+<br /> <br />
+
 | Data Source Name       | Purpose        |
 |------------|------------|
 | Asset Inventory      | Written host roles of expected behavior and identifies authorized activity.  |
