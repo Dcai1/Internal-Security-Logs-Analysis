@@ -10,7 +10,8 @@ For your curiosity, the logs I used are available for viewing and download on th
 
 # Provided Data
 
-<img width="983" height="528" alt="msedge_GlKoqxCLjm" src="https://github.com/user-attachments/assets/36a19998-d09b-4454-847e-cb9a85854b09" />
+<img width="986" height="532" alt="Visual Image of information provided for the investigation" src="https://github.com/user-attachments/assets/31c39cfb-024e-4295-b128-5b9580abe6fb" />
+
 
 <br /> <br />
 
